@@ -1,37 +1,25 @@
 <?php
-namespace App\Http\Controllers\Dashboard\Admin;
-use App\DataTables\Orders\OrderDataTable;
+
+namespace App\Http\Controllers\Dashboard\CallCenter;
 use Illuminate\Http\Request;
-use App\Models\{CaptainProfile,CarsCaptionStatus,Captain,Image};
 use App\Http\Controllers\Controller;
-use App\DataTables\Dashboard\Admin\CaptainDataTable;
-use App\Http\Requests\Dashboard\Admin\CaptionRequestValidation;
-use App\Services\Dashboard\{Admins\CaptainService, General\GeneralService};
+use App\DataTables\Dashboard\CallCenter\CaptainDataTable;
+use App\Services\Dashboard\{CallCenter\CaptainService,General\GeneralService};
+use App\Models\{CaptainProfile,CarsCaptionStatus,Captain,Image};
 
 class CaptainController extends Controller {
-
     public function __construct(protected CaptainDataTable $dataTable, protected CaptainService $captainService, protected GeneralService $generalService) {
         $this->dataTable = $dataTable;
         $this->captainService = $captainService;
         $this->generalService = $generalService;
     }
-
+    
     public function index() {
         $data = [
             'title' => 'Captions',
             'countries' => $this->generalService->getCountries(),
         ];
-        return $this->dataTable->render('dashboard.admin.captains.index', compact('data'));
-    }
-
-    public function store(CaptionRequestValidation $request) {
-        try {
-            $requestData = $request->validated();
-            $this->captainService->create($requestData);
-            return redirect()->route('captains.index')->with('success', 'captain created successfully');
-        } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while creating the captain');
-        }
+        return $this->dataTable->render('dashboard.call-center.captains.index',  compact('data'));
     }
 
     public function show($captainId) {
@@ -40,45 +28,9 @@ class CaptainController extends Controller {
                 'title' => 'Captain Details',
                 'captain' => $this->captainService->getProfile($captainId),
             ];
-            return view('dashboard.admin.captains.show', compact('data'));
+            return view('dashboard.call-center.captains.show', compact('data'));
         } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while getting the captain details');
-        }
-    }
-
-    public function update(CaptionRequestValidation $request, $captainId) {
-        try {
-            $requestData = $request->validated();
-            $this->captainService->update($captainId, $requestData);
-            return redirect()->route('captains.index')->with('success', 'captain updated successfully');
-        } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while updating the captain');
-        }
-    }
-
-    public function updatePassword(Request $request, $captainId) {
-        try {
-            $this->captainService->updatePassword($captainId, $request->password);
-            return redirect()->route('captains.index')->with('success', 'captain password updated successfully');
-        } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while updating the captain password');
-        }
-    }
-
-    public function destroy($id) {
-        try {
-            $this->captainService->delete($id);
-            return redirect()->route('captains.index')->with('success', 'captain deleted successfully');
-        } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while deleting the captain');
-        }
-    }
-
-    public function notifications($captainId) {
-        try {
-            return $this->captainService->getNotifications($captainId);
-        } catch (\Exception $e) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred while getting the captain notifications');
+            return redirect()->route('CallCenterCaptains.index')->with('error', 'An error occurred while getting the captain details');
         }
     }
 
@@ -134,6 +86,8 @@ class CaptainController extends Controller {
                 $image->type = $type;
                 $image->filename = $field . '.' . $request->file($field)->getClientOriginalExtension();
                 $image->imageable_id = $imageable->id;
+                $image->created_by_callcenter_id = get_user_data()->id;
+                $image->created_at_callcenter = now();
                 $image->save();
             }
         }
@@ -193,8 +147,11 @@ class CaptainController extends Controller {
             if (!$image) 
                 return redirect()->back()->with('error', 'Image not found');
             $updateData = [];
-            if ($request->has('photo_status'))
+            if ($request->has('photo_status')) {
                 $updateData['photo_status'] = $request->input('photo_status');
+                $updateData['updated_by_callcenter_id'] = get_user_data()->id;
+                $updateData['updated_at_callcenter'] = now();
+            }
             
             if ($request->has('reject_reson'))
                 $updateData['reject_reson'] = $request->input('reject_reson');
@@ -208,7 +165,7 @@ class CaptainController extends Controller {
             return redirect()->back()->with('error', 'An error occurred during the update: ' . $e->getMessage());
         }
     }
-    
+
     public function updateCarStatus(Request $request, $id) {
         try {
             $captainId = $request->input('captain_id');
@@ -233,42 +190,5 @@ class CaptainController extends Controller {
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'An error occurred while updating Captain car media status');
         }
-    }
-
-    public function updateActivityStatus(Request $request, $id) {
-        try {
-            $captain = Captain::findOrFail($id);
-            $captain->captainActivity->status_captain_work = $request->input('status_captain_work');
-            $captain->captainActivity->save();
-            return redirect()->route('captains.show', $this->captainService->getProfile($id))->with('success', 'captain activity status updated successfully');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred while updating Captain activity status');
-        }
-    }
-
-    public function sendNotificationAll(Request $request) {
-        try {
-            sendNotificatioAll($request->type, $request->body, $request->title);
-            return redirect()->route('captains.index')->with('success', 'Successfully Send Notifications');
-
-        } catch (\Exception $exception) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred');
-
-        }
-    }
-
-    public function sendNotification(Request $request) {
-        try {
-            sendNotificationCaptain($request->fcm_token_captain, $request->body, $request->title);
-            return redirect()->route('captains.index')->with('success', 'Successfully Send Notifications');
-
-        } catch (\Exception $exception) {
-            return redirect()->route('captains.index')->with('error', 'An error occurred');
-
-        }
-    }
-
-    public function getOrders(OrderDataTable $dataTable) {
-        return $dataTable->render('dashboard.admin.captains.Orders.orders',['caption_orders' => \request()->caption_orders]);
     }
 }

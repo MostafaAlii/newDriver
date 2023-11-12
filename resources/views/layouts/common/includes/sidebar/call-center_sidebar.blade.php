@@ -5,7 +5,7 @@
             <ul class="nav navbar-nav side-menu" id="sidebarnav">
                 <!-- menu item Dashboard-->
                 <li>
-                    <a href="{{ route('agent.dashboard') }}">Call-Center Managment</a>
+                    <a href="{{ route('callCenter.dashboard') }}">Call-Center Managment</a>
                 </li>
                 <!-- Start Admin Managment Menu-->
                 <li class="pl-4 mt-10 mb-10 font-medium text-muted menu-title">Call-Center Managment</li>
@@ -18,7 +18,7 @@
                         <div class="clearfix"></div>
                     </a>
                     <ul id="call-centers_managment" class="collapse" data-parent="#sidebarnav">
-                        <li><a href="{{--route('agentCaptains.index')--}}">Captain</a></li>
+                        <li><a href="{{route('CallCenterCaptains.index')}}">Captain</a></li>
                     </ul>
                 </li>
                 <!-- End Admin Managment Menu-->
