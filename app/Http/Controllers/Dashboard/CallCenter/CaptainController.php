@@ -133,12 +133,7 @@ class CaptainController extends Controller {
                     'en'=> 'Accept',
                 ],
             ];
-
-
             $image = Image::find($id);
-      
-            
-        
             $captain = Captain::findOrfail($request->imageable_id);
             $accept = array_key_exists('Accept',$messages) ? $messages['Accept']['ar'] : null;
             $reject = array_key_exists('Reject',$messages) ? $messages['Reject']['ar'] : null;

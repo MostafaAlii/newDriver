@@ -211,38 +211,40 @@
                                                                 <td>{{ ucfirst(str_replace('_', ' ', $image->photo_status)) }}
                                                                 </td>
                                                                 <td>
-                                                                    <div class="mb-1 btn-group">
-                                                                        <button type="button"
-                                                                            class="btn btn-default dropdown-toggle"
-                                                                            data-toggle="dropdown" aria-haspopup="true"
-                                                                            aria-expanded="false">{{ trans('general.processes') }}</button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a type="button"
-                                                                                class="modal-effect btn btn-sm btn-success dropdown-item"
-                                                                                style="text-align: center !important"
-                                                                                data-toggle="modal"
-                                                                                data-target="#active{{ $image->id }}"
-                                                                                data-effect="effect-scale">
-                                                                                <span
-                                                                                    class="icon text-success text-bold">
-                                                                                    <i class="fa fa-edit"></i>
-                                                                                    Active
-                                                                                </span>
-                                                                            </a>
-                                                                            <a type="button"
-                                                                                class="modal-effect btn btn-sm btn-warning dropdown-item"
-                                                                                style="text-align: center !important"
-                                                                                data-toggle="modal"
-                                                                                data-target="#reject{{ $image->id }}"
-                                                                                data-effect="effect-scale">
-                                                                                <span
-                                                                                    class="icon text-warning text-bold">
-                                                                                    <i class="fa fa-edit"></i>
-                                                                                    Reject
-                                                                                </span>
-                                                                            </a>
+                                                                    @if($image->photo_status !== 'accept')
+                                                                        <div class="mb-1 btn-group">
+                                                                            <button type="button"
+                                                                                class="btn btn-default dropdown-toggle"
+                                                                                data-toggle="dropdown" aria-haspopup="true"
+                                                                                aria-expanded="false">{{ trans('general.processes') }}</button>
+                                                                            <div class="dropdown-menu">
+                                                                                <a type="button"
+                                                                                    class="modal-effect btn btn-sm btn-success dropdown-item"
+                                                                                    style="text-align: center !important"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#active{{ $image->id }}"
+                                                                                    data-effect="effect-scale">
+                                                                                    <span
+                                                                                        class="icon text-success text-bold">
+                                                                                        <i class="fa fa-edit"></i>
+                                                                                        Active
+                                                                                    </span>
+                                                                                </a>
+                                                                                <a type="button"
+                                                                                    class="modal-effect btn btn-sm btn-warning dropdown-item"
+                                                                                    style="text-align: center !important"
+                                                                                    data-toggle="modal"
+                                                                                    data-target="#reject{{ $image->id }}"
+                                                                                    data-effect="effect-scale">
+                                                                                    <span
+                                                                                        class="icon text-warning text-bold">
+                                                                                        <i class="fa fa-edit"></i>
+                                                                                        Reject
+                                                                                    </span>
+                                                                                </a>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
+                                                                    @endif
                                                                 </td>
                                                                 </td>
                                                             </tr>
